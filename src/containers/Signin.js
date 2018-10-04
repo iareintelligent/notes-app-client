@@ -53,16 +53,13 @@ class Signin extends React.Component {
         });
     };
 
-    handleSubmit = async event => {
+    positiveAlert = (handleSubmit = async event => {
         event.preventDefault();
 
         try {
             await Auth.signIn(this.state.email, this.state.password);
-            this.positiveAlert();
-        } catch {
-            this.negativeAlert();
-        }
-    };
+        } catch {}
+    });
 
     handleClickShowPassword = () => {
         this.setState(state => ({ showPassword: !state.showPassword }));
