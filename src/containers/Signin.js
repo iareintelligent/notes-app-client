@@ -53,13 +53,13 @@ class Signin extends React.Component {
         });
     };
 
-    positiveAlert = (handleSubmit = async event => {
+    handleSubmit = async event => {
         event.preventDefault();
 
         try {
             await Auth.signIn(this.state.email, this.state.password);
         } catch {}
-    });
+    };
 
     handleClickShowPassword = () => {
         this.setState(state => ({ showPassword: !state.showPassword }));
