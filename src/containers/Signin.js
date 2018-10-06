@@ -12,7 +12,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { Auth } from "aws-amplify";
-import SignInSnackbar from "../components/SignInSnackbar";
+import SnackbarNotifier, { openSnackbar } from "../components/SnackbarNotifier";
 
 const styles = theme => ({
     login: {
@@ -39,12 +39,10 @@ class Signin extends React.Component {
         this.state = {
             email: "",
             password: "",
-            showPassword: false,
-            signInVariant: "failure",
-            signInMessage: "",
-            open: false
+            showPassword: false
         };
     }
+
     handleChange = event => {
         this.setState({
             [event.target.id]: event.target.value
@@ -55,24 +53,20 @@ class Signin extends React.Component {
         event.preventDefault();
         try {
             await Auth.signIn(this.state.email, this.state.password);
-            this.setState({
-                signInVariant: "success",
-                signInMessage: "Signed in!",
-                open: true
-            });
+            this.showNotifier({ message: "Signed in!", variant: "success" });
+            this.props.userHasAuthenticated(true);
+            this.props.history.push("/");
         } catch (error) {
-            this.setState({
-                signInVariant: "failure",
-                signInMessage: error.message
-                    ? error.message
-                    : "howabout trying that again",
-                open: true
-            });
+            this.showNotifier({ message: error.message, variant: "error" });
         }
     };
 
     handleClickShowPassword = () => {
         this.setState(state => ({ showPassword: !state.showPassword }));
+    };
+
+    showNotifier = ({ message, variant }) => {
+        openSnackbar({ message, variant });
     };
 
     render() {
@@ -86,18 +80,19 @@ class Signin extends React.Component {
                     onSubmit={this.handleSubmit}
                     className={classes.loginForm}
                 >
-                    <TextField
-                        id="email"
-                        label="email"
-                        type="email"
-                        variant="outlined"
-                        className={classes.textField}
-                        value={this.state.email}
-                        onChange={this.handleChange}
-                        fullWidth
-                    />
-                    <FormControl>
-                        <InputLabel htmlFor="password">Password</InputLabel>
+                    <FormControl fullWidth>
+                        <TextField
+                            id="email"
+                            label="email"
+                            type="email"
+                            className={classes.textField}
+                            value={this.state.email}
+                            onChange={this.handleChange}
+                            fullWidth
+                        />
+                    </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel htmlFor="password">password</InputLabel>
                         <Input
                             id="password"
                             label="password"
@@ -130,11 +125,7 @@ class Signin extends React.Component {
                     >
                         Log in
                     </Button>
-                    <SignInSnackbar
-                        variant={this.state.signInVariant}
-                        message={this.state.signInMessage}
-                        open={this.state.open}
-                    />
+                    <SnackbarNotifier />
                 </form>
             </div>
         );

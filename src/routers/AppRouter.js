@@ -1,17 +1,20 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Switch } from "react-router-dom";
+import AppliedRoute from "../components/AppliedRoute";
 import Home from "../containers/Home";
-import Signup from "../containers/Signup";
 import Signin from "../containers/Signin";
-import FourOhFour from "../components/FourOhFour";
+import FourOhFour from "../containers/FourOhFour";
 
-export default () => {
+export default ({ childProps }) => {
     return (
         <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/signup" component={Signup} />
-            <Route path="/signin" component={Signin} />
-            <Route component={FourOhFour} />
+            <AppliedRoute path="/" exact component={Home} props={childProps} />
+            <AppliedRoute
+                path="/signin"
+                component={Signin}
+                props={childProps}
+            />
+            <AppliedRoute component={FourOhFour} />
         </Switch>
     );
 };

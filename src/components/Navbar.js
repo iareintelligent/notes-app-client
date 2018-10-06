@@ -8,6 +8,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import AccountBox from "@material-ui/icons/AccountBox";
+import Button from "@material-ui/core/Button";
 
 const styles = theme => ({
     appBar: {
@@ -35,9 +36,9 @@ const styles = theme => ({
     }
 });
 
-class Navbar extends React.PureComponent {
-    constructor() {
-        super();
+class Navbar extends React.Component {
+    constructor(props) {
+        super(props);
 
         this.navRef = React.createContext();
         this.state = {
@@ -55,10 +56,14 @@ class Navbar extends React.PureComponent {
     }
 
     render() {
+        const { childProps } = this.props;
         return (
             <React.Fragment>
                 <RootRef rootRef={this.navRef}>
-                    <AppBar className={this.props.classes.appBar}>
+                    <AppBar
+                        className={this.props.classes.appBar}
+                        color="secondary"
+                    >
                         <Toolbar>
                             <Link
                                 to="/"
@@ -72,17 +77,30 @@ class Navbar extends React.PureComponent {
                                 </Typography>
                             </Link>
                             <div className={this.props.classes.grow} />
-                            <Link to="/signin">
-                                <IconButton
-                                    className={this.props.classes.menuButton}
-                                    aria-label="sign in"
+                            {childProps.isAuthenticated ? (
+                                <Button
+                                    style={{ color: "white" }}
+                                    onClick={childProps.handleLogout}
                                 >
-                                    <AccountBox />
-                                </IconButton>
-                                <Typography variant="srOnly">
-                                    Sign up or Log in
-                                </Typography>
-                            </Link>
+                                    Logout
+                                </Button>
+                            ) : (
+                                <React.Fragment>
+                                    <IconButton
+                                        className={
+                                            this.props.classes.menuButton
+                                        }
+                                        aria-label="sign in"
+                                        component={Link}
+                                        to="/signin"
+                                    >
+                                        <AccountBox />
+                                    </IconButton>
+                                    <Typography variant="srOnly">
+                                        Sign up or Log in
+                                    </Typography>
+                                </React.Fragment>
+                            )}
                         </Toolbar>
                     </AppBar>
                 </RootRef>
