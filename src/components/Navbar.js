@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 
 const styles = theme => ({
     appBar: {
-        marginTop: "15px"
+        marginTop: 0
     },
     grow: {
         flexGrow: 1
@@ -48,7 +48,7 @@ class Navbar extends React.Component {
 
     adjustNavPadding = () => {
         const height = this.navRef.current.clientHeight;
-        this.setState({ height: height + 15 });
+        this.setState({ height: height });
     };
 
     componentDidMount() {

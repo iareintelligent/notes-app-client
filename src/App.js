@@ -4,8 +4,8 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import AppRouter from "./routers/AppRouter";
 import "./App.css";
 import { Auth } from "aws-amplify";
-import SnackbarNotifier, { openSnackbar } from "./components/SnackbarNotifier";
 import { withRouter } from "react-router-dom";
+import Footer from "./containers/Footer";
 
 class App extends React.Component {
     constructor(props) {
@@ -17,7 +17,20 @@ class App extends React.Component {
         };
     }
 
-    userHasAuthenticated = authenticated => {
+    async componentDidMount() {
+        try {
+            if (await Auth.currentSession()) {
+                this.userHasAuthenticated(true);
+            }
+        } catch (e) {
+            if (e !== "No current user") {
+                alert(e);
+            }
+        }
+        this.setState({ isAuthenticating: false });
+    }
+
+    userHasAuthenticated = (authenticated = false) => {
         this.setState({ isAuthenticated: authenticated });
     };
 
@@ -27,19 +40,6 @@ class App extends React.Component {
         this.userHasAuthenticated(false);
         this.props.history.push("/signin");
     };
-
-    async componentDidMount() {
-        try {
-            if (await Auth.currentSession()) {
-                this.userHasAuthenticated(true);
-            }
-        } catch (e) {
-            if (e !== "No current user") {
-                openSnackbar({ message: e, variant: "warning" });
-            }
-        }
-        this.setState({ isAuthenticating: false });
-    }
 
     render() {
         const childProps = {
@@ -54,7 +54,7 @@ class App extends React.Component {
                     <CssBaseline>
                         <Navbar childProps={childProps} />
                         <AppRouter childProps={childProps} />
-                        <SnackbarNotifier />
+                        <Footer childProps={childProps} />
                     </CssBaseline>
                 </div>
             )
