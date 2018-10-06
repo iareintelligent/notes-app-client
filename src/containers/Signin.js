@@ -12,7 +12,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { Auth } from "aws-amplify";
-
+import SignInSnackbar from "../components/SignInSnackbar";
 
 const styles = theme => ({
     login: {
@@ -31,6 +31,7 @@ const styles = theme => ({
         maxWidth: "320px"
     }
 });
+
 class Signin extends React.Component {
     constructor(props) {
         super(props);
@@ -38,7 +39,10 @@ class Signin extends React.Component {
         this.state = {
             email: "",
             password: "",
-            showPassword: false
+            showPassword: false,
+            signInVariant: "failure",
+            signInMessage: "",
+            open: false
         };
     }
     handleChange = event => {
@@ -49,10 +53,22 @@ class Signin extends React.Component {
 
     handleSubmit = async event => {
         event.preventDefault();
-
         try {
             await Auth.signIn(this.state.email, this.state.password);
-        } catch {}
+            this.setState({
+                signInVariant: "success",
+                signInMessage: "Signed in!",
+                open: true
+            });
+        } catch (error) {
+            this.setState({
+                signInVariant: "failure",
+                signInMessage: error.message
+                    ? error.message
+                    : "howabout trying that again",
+                open: true
+            });
+        }
     };
 
     handleClickShowPassword = () => {
@@ -114,6 +130,11 @@ class Signin extends React.Component {
                     >
                         Log in
                     </Button>
+                    <SignInSnackbar
+                        variant={this.state.signInVariant}
+                        message={this.state.signInMessage}
+                        open={this.state.open}
+                    />
                 </form>
             </div>
         );
