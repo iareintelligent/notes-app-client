@@ -43,47 +43,41 @@ class PaperTextField extends React.Component {
 
     renderTextInput() {
         const {
-            variant = "",
+            variant = "standard",
             value = "",
-            type = "",
-            required = "false",
             id = "",
-            label = "",
-            error = false
+            label = ""
         } = this.props;
         return (
             <TextField
-                error={error}
-                required={required}
                 id={id}
                 label={label}
                 variant={variant}
                 value={value}
                 onChange={this.handleChange}
-                type={type}
-                fullWidth
+                fullWidth={this.props.fullWidth}
             />
         );
     }
     renderPasswordField() {
         const {
-            variant = "",
+            variant = "standard",
             value = "",
             id = "",
-            label = "",
-            error = false
+            label = ""
         } = this.props;
         return (
             <FormControl fullWidth>
                 <InputLabel htmlFor="password">{label}</InputLabel>
                 <Input
-                    error={error}
+                    autoComplete="new-password"
                     required
                     id={id}
                     variant={variant}
                     value={value}
                     onChange={this.handleChange}
                     type={this.state.showPassword ? "text" : "password"}
+                    error={value.length < 6 ? true : false}
                     endAdornment={
                         <InputAdornment position="end">
                             <IconButton
@@ -104,24 +98,22 @@ class PaperTextField extends React.Component {
     }
     renderTextArea() {
         const {
-            variant = "",
+            variant = "standard",
             value = "",
             required = "false",
             id = "",
             label = "",
-            error = false,
             rows
         } = this.props;
         return (
             <TextField
-                error={error}
                 required={required}
                 id={id}
                 label={label}
                 variant={variant}
                 value={value}
                 onChange={this.handleChange}
-                fullWidth
+                fullWidth={this.props.fullWidth}
                 multiline
                 rows={rows}
             />

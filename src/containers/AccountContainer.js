@@ -20,7 +20,7 @@ const styles = theme => ({
     }
 });
 
-class Signin extends React.Component {
+class AccountContainer extends React.Component {
     constructor(props) {
         super(props);
 
@@ -31,26 +31,41 @@ class Signin extends React.Component {
             confirmationCode: "",
             isLoading: false,
             buttonContent: "Log In",
+            buttonLoadingContent: "Logging In...",
             buttonDisabled: false,
+            buttonColor: "default",
             signingIn: true,
             signingUp: false,
             newUser: null
         };
     }
+    transformErrorButton(content) {
+        this.setState({
+            buttonColor: "secondary",
+            buttonContent: content,
+            buttonDisabled: true
+        });
+    }
+    resetButtonState() {
+        !this.state.signingIn
+            ? this.setState({
+                  buttonContent: "Log in",
+                  buttonLoadingContent: "Logging in..."
+              })
+            : this.setState({
+                  buttonContent: "Create account",
+                  buttonLoadingContent: "Creating account..."
+              });
+    }
 
     validateSignupForm() {
-        if (this.state.signingUp) {
-            return (
-                this.state.email.length > 0 &&
-                this.state.password.length > 0 &&
-                this.state.password === this.state.confirmPassword
-            );
-        } else {
-            console.log("signing in");
-            return (
-                this.state.email.length > 0 && this.state.password.length > 0
-            );
-        }
+        return (
+            this.state.email.length > 0 &&
+            this.state.password.length > 5 &&
+            ((this.state.signingUp &&
+                this.state.password === this.state.confirmPassword) ||
+                this.state.signingIn)
+        );
     }
 
     validateConfirmationForm() {
@@ -58,7 +73,6 @@ class Signin extends React.Component {
     }
 
     handleChange = event => {
-        console.log(event.target.value);
         this.setState({
             [event.target.id]: event.target.value
         });
@@ -75,6 +89,8 @@ class Signin extends React.Component {
                 this.props.history.push("/");
             } catch (error) {
                 this.props.userHasAuthenticated(false);
+                console.log(error);
+                this.transformErrorButton(error.message);
             }
         } else if (this.state.signingUp) {
             try {
@@ -112,8 +128,10 @@ class Signin extends React.Component {
     handleSignup = () => {
         this.setState({
             signingIn: !this.state.signingIn,
-            signingUp: !this.state.signingUp
+            signingUp: !this.state.signingUp,
+            buttonColor: "default"
         });
+        this.resetButtonState();
     };
 
     renderForm() {
@@ -125,35 +143,33 @@ class Signin extends React.Component {
                     className={classes.loginForm}
                 >
                     <PaperTextField
-                        variant="standard"
                         id="email"
                         label="email"
                         type="email"
-                        required={true}
                         handleChange={this.handleChange}
-                        renderField={true}
-                        value={this.state.value}
+                        value={this.state.email}
+                        autoComplete="new-password"
+                        fullWidth
                     />
                     <PaperTextField
-                        variant="standard"
                         id="password"
                         label="password"
                         type="password"
-                        required={true}
                         order={1}
                         handleChange={this.handleChange}
-                        renderField={true}
+                        value={this.state.password}
+                        autoComplete="new-password"
                     />
                     <PaperTextField
                         error={this.state.validSignupForm}
-                        variant="standard"
                         id="confirmPassword"
                         label="confirm password"
                         type="password"
-                        required={true}
                         order={2}
                         handleChange={this.handleChange}
                         renderField={this.state.signingUp}
+                        value={this.state.confirmPassword}
+                        autoComplete="new-password"
                     />
                     <Slide
                         direction="right"
@@ -164,17 +180,13 @@ class Signin extends React.Component {
                     >
                         <LoadingButton
                             isLoading={this.state.isLoading}
-                            text={
-                                this.state.signingIn
-                                    ? "Log in"
-                                    : "Create account"
+                            text={this.state.buttonContent}
+                            loadingText={this.state.buttonLoadingContent}
+                            color={this.state.buttonColor}
+                            disabled={
+                                this.state.buttonDisabled &&
+                                !this.validateSignupForm()
                             }
-                            loadingText={
-                                this.state.signginIn
-                                    ? "Logging in..."
-                                    : "Creating account..."
-                            }
-                            disabled={!this.validateSignupForm()}
                         />
                     </Slide>
                     <Slide
@@ -205,13 +217,14 @@ class Signin extends React.Component {
             <form onSubmit={this.handleConfirmationSubmit}>
                 <PaperTextField
                     variant="standard"
-                    id="confirmation-code"
+                    id="confirmationCode"
                     label="Confirmation code"
                     type="text"
-                    required={true}
                     order={0}
                     handleChange={this.handleChange}
                     renderField={true}
+                    value={this.state.confirmationCode}
+                    fullWidth
                 />
                 <Slide
                     direction="right"
@@ -224,6 +237,7 @@ class Signin extends React.Component {
                         isLoading={this.state.isLoading}
                         text="Verify"
                         loadingText="Verifying..."
+                        disabled={!this.validateConfirmationForm()}
                     />
                 </Slide>
             </form>
@@ -241,8 +255,8 @@ class Signin extends React.Component {
     }
 }
 
-Signin.propTypes = {
+AccountContainer.propTypes = {
     classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(Signin);
+export default withStyles(styles)(AccountContainer);

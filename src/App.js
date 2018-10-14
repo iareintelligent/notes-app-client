@@ -42,7 +42,6 @@ class App extends React.Component {
     };
 
     handleLogout = async event => {
-        console.log("werkin");
         await Auth.signOut();
         this.userHasAuthenticated(false);
         this.props.history.push("/signin");
