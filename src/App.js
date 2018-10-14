@@ -6,6 +6,13 @@ import "./App.css";
 import { Auth } from "aws-amplify";
 import { withRouter } from "react-router-dom";
 import Footer from "./containers/Footer";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core";
+
+const theme = createMuiTheme({
+    typography: {
+        useNextVariants: true
+    }
+});
 
 class App extends React.Component {
     constructor(props) {
@@ -50,13 +57,13 @@ class App extends React.Component {
 
         return (
             !this.state.isAuthenticating && (
-                <div className="App container">
+                <MuiThemeProvider theme={theme}>
                     <CssBaseline>
                         <Navbar childProps={childProps} />
                         <AppRouter childProps={childProps} />
                         <Footer childProps={childProps} />
                     </CssBaseline>
-                </div>
+                </MuiThemeProvider>
             )
         );
     }

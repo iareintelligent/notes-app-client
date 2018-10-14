@@ -70,7 +70,7 @@ class Navbar extends React.Component {
                                 className={this.props.classes.navbarBrand}
                             >
                                 <Typography
-                                    variant="title"
+                                    variant="h6"
                                     className={this.props.classes.navbarBrandH2}
                                 >
                                     Scratch

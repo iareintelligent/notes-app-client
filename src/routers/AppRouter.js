@@ -2,8 +2,9 @@ import React from "react";
 import { Switch } from "react-router-dom";
 import AppliedRoute from "../components/AppliedRoute";
 import Home from "../containers/Home";
-import Signin from "../containers/Signin";
+import Signin from "../containers/AccountContainer";
 import FourOhFour from "../containers/FourOhFour";
+import CreateNote from "../containers/CreateNote";
 import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
@@ -37,6 +38,12 @@ class AppRouter extends React.Component {
                     <AppliedRoute
                         path="/signin"
                         component={Signin}
+                        props={childProps}
+                    />
+                    <AppliedRoute
+                        path="/notes/new"
+                        exact
+                        component={CreateNote}
                         props={childProps}
                     />
                     <AppliedRoute component={FourOhFour} />

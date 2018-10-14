@@ -3,7 +3,7 @@ import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 
-const styles = theme =>({
+const styles = theme => ({
     lander: {
         padding: theme.spacing.unit,
         display: "flex",
@@ -24,7 +24,7 @@ class Footer extends React.PureComponent {
             <div className="Footer">
                 <div className={this.props.classes.lander}>
                     <Typography
-                        variant="title"
+                        variant="h6"
                         component="h1"
                         className={this.props.classes.landerH1}
                     >

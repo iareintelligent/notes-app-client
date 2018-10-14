@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
-import "./LoadingButton.css";
+import "./styles/LoadingButton.css";
 
 export default ({
     isLoading,
@@ -12,7 +12,7 @@ export default ({
 }) => (
     <Button
         type="submit"
-        variant="raised"
+        variant="contained"
         fullWidth
         className="LoadingButton"
         disabled={disabled || isLoading}
