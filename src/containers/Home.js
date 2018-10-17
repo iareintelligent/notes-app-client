@@ -2,14 +2,22 @@ import React from "react";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
-import Button from "@material-ui/core/Button";
-import Divider from "@material-ui/core/Divider";
 import NotesList from "../components/NotesList";
 import { API } from "aws-amplify";
+import BorderedEndlessScrollField from "../components/BorderedEndlessScrollField";
 
-const styles = {
+const styles = theme => ({
     Home: {
         textAlign: "center"
+    },
+    container: {
+        marginTop: theme.spacing.unit * 2
+    },
+    extendedIcon: {
+        marginRight: theme.spacing.unit
+    },
+    addButton: {
+        margin: theme.spacing.unit
     },
     lander: {
         padding: "80px 0",
@@ -22,7 +30,7 @@ const styles = {
     landerP: {
         color: "#999"
     }
-};
+});
 
 class Home extends React.PureComponent {
     constructor(props) {
@@ -77,24 +85,21 @@ class Home extends React.PureComponent {
         );
     }
     renderNotes() {
-        return (
-            <div className="Notes">
-                <Typography variant="h4" component="h1">
-                    Your Notes:
-                </Typography>
-                <Divider />
+        const notes = (
+            <React.Fragment>
                 {!this.state.isLoading && (
                     <NotesList notes={this.state.notes} />
                 )}
-            </div>
+            </React.Fragment>
+        );
+        return (
+            <BorderedEndlessScrollField content={notes} label={"Your Notes"} />
         );
     }
     render() {
+        const { classes } = this.props;
         return (
-            <div>
-                <Button variant="text" color="primary" href="/notes/new">
-                    Create a Note
-                </Button>
+            <div className={classes.container}>
                 {this.state.notes.length > 0
                     ? this.renderNotes()
                     : this.renderLander()}

@@ -2,12 +2,20 @@ import React from "react";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
+import Button from "@material-ui/core/Button";
+import AddIcon from "@material-ui/icons/Add";
+import { Link } from "react-router-dom";
 
 const styles = theme => ({
+    Footer: {
+        display: "flex"
+    },
     lander: {
         padding: theme.spacing.unit,
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        width: "50%",
+        justifyContent: "center"
     },
     landerH1: {
         fontFamily: "'Open Sans', sans-serif",
@@ -20,8 +28,9 @@ const styles = theme => ({
 
 class Footer extends React.PureComponent {
     render() {
+        const { classes } = this.props;
         return (
-            <div className="Footer">
+            <div className={classes.Footer}>
                 <div className={this.props.classes.lander}>
                     <Typography
                         variant="h6"
@@ -38,6 +47,21 @@ class Footer extends React.PureComponent {
                         A simple note-taking app
                     </Typography>
                 </div>
+                {this.props.isAuthenticated && (
+                    <div className={this.props.classes.lander}>
+                        <Button
+                            aria-label="create note"
+                            component={Link}
+                            to="/notes/new"
+                            variant="extendedFab"
+                            color="secondary"
+                            className={classes.addButton}
+                        >
+                            <AddIcon className={classes.extendedIcon} />
+                            Create note
+                        </Button>
+                    </div>
+                )}
             </div>
         );
     }

@@ -93,6 +93,7 @@ class CreateNote extends React.Component {
                         type="textarea"
                         rows="8"
                         value={this.state.content}
+                        fullWidth={true}
                     />
                     <input
                         ref={"file-upload"}

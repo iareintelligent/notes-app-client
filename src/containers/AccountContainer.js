@@ -13,10 +13,12 @@ const styles = theme => ({
     },
     loginForm: {
         margin: "0 auto",
-        maxWidth: "320px"
+        maxWidth: "320px",
+        textAlign: "center"
     },
     button: {
-        marginTop: theme.spacing.unit * 2
+        marginTop: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * 2
     }
 });
 
@@ -25,7 +27,7 @@ class AccountContainer extends React.Component {
         super(props);
 
         this.state = {
-            email: "",
+            email: "topher@bythecode.agency",
             password: "",
             confirmPassword: "",
             confirmationCode: "",
@@ -34,27 +36,37 @@ class AccountContainer extends React.Component {
             buttonLoadingContent: "Logging In...",
             buttonDisabled: false,
             buttonColor: "default",
+            helperButtonContent: "Create an account",
             signingIn: true,
             signingUp: false,
             newUser: null
         };
     }
-    transformErrorButton(content) {
+    transformErrorButton(error) {
         this.setState({
             buttonColor: "secondary",
-            buttonContent: content,
+            buttonContent: error.message,
             buttonDisabled: true
         });
+        switch (error.code) {
+            case "UserNotConfirmedException":
+                this.setState({ newUser: "almost" });
+                console.log("almost");
+                break;
+            default:
+        }
     }
     resetButtonState() {
-        !this.state.signingIn
+        this.state.signingUp
             ? this.setState({
                   buttonContent: "Log in",
-                  buttonLoadingContent: "Logging in..."
+                  buttonLoadingContent: "Logging in...",
+                  helperButtonContent: "Create an account"
               })
             : this.setState({
                   buttonContent: "Create account",
-                  buttonLoadingContent: "Creating account..."
+                  buttonLoadingContent: "Creating account...",
+                  helperButtonContent: "Cancel"
               });
     }
 
@@ -86,11 +98,10 @@ class AccountContainer extends React.Component {
             try {
                 await Auth.signIn(this.state.email, this.state.password);
                 this.props.userHasAuthenticated(true);
-                this.props.history.push("/");
             } catch (error) {
                 this.props.userHasAuthenticated(false);
                 console.log(error);
-                this.transformErrorButton(error.message);
+                this.transformErrorButton(error);
             }
         } else if (this.state.signingUp) {
             try {
@@ -101,10 +112,9 @@ class AccountContainer extends React.Component {
                 this.setState({ newUser });
             } catch (e) {
                 alert(e.message);
+                this.setState({ isLoading: false });
             }
         }
-
-        this.setState({ isLoading: false });
     };
 
     handleConfirmationSubmit = async event => {
@@ -116,7 +126,6 @@ class AccountContainer extends React.Component {
                 this.state.confirmationCode
             );
             await Auth.signIn(this.state.email, this.state.password);
-
             this.props.userHasAuthenticated(true);
             this.props.history.push("/");
         } catch (e) {
@@ -202,45 +211,75 @@ class AccountContainer extends React.Component {
                             fullWidth
                             onClick={this.handleSignup}
                         >
-                            {this.state.signingIn
-                                ? "Create an account"
-                                : "Cancel"}
+                            {this.state.helperButtonContent}
                         </Button>
                     </Slide>
                 </form>
             </div>
         );
     }
-
+    handleResendVerification = async event => {
+        try {
+            await Auth.resendSignUp(this.state.email);
+            this.setState({
+                isLoading: true
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+        this.setState({
+            isLoading: false
+        });
+    };
     renderConfirmationForm() {
+        const { classes } = this.props;
         return (
-            <form onSubmit={this.handleConfirmationSubmit}>
-                <PaperTextField
-                    variant="standard"
-                    id="confirmationCode"
-                    label="Confirmation code"
-                    type="text"
-                    order={0}
-                    handleChange={this.handleChange}
-                    renderField={true}
-                    value={this.state.confirmationCode}
-                    fullWidth
-                />
-                <Slide
-                    direction="right"
-                    in
-                    mountOnEnter
-                    unmountOnExit
-                    style={{ transitionDelay: 100 }}
+            <div className={classes.login}>
+                <form
+                    onSubmit={this.handleConfirmationSubmit}
+                    className={classes.loginForm}
                 >
-                    <LoadingButton
-                        isLoading={this.state.isLoading}
-                        text="Verify"
-                        loadingText="Verifying..."
-                        disabled={!this.validateConfirmationForm()}
+                    <PaperTextField
+                        id="confirmationCode"
+                        label="Confirmation code"
+                        type="text"
+                        order={0}
+                        handleChange={this.handleChange}
+                        renderField={true}
+                        value={this.state.confirmationCode}
+                        fullWidth
                     />
-                </Slide>
-            </form>
+                    <Slide
+                        direction="right"
+                        in
+                        mountOnEnter
+                        unmountOnExit
+                        style={{ transitionDelay: 100 }}
+                    >
+                        <LoadingButton
+                            isLoading={this.state.isLoading}
+                            text="Verify"
+                            loadingText="Verifying..."
+                            disabled={!this.validateConfirmationForm()}
+                        />
+                    </Slide>
+                    <Slide
+                        direction="right"
+                        in
+                        mountOnEnter
+                        unmountOnExit
+                        style={{ transitionDelay: 200 }}
+                    >
+                        <Button
+                            variant="text"
+                            color="primary"
+                            onClick={this.handleResendVerification}
+                        >
+                            Resend verification code
+                        </Button>
+                    </Slide>
+                </form>
+            </div>
         );
     }
 
@@ -251,6 +290,7 @@ class AccountContainer extends React.Component {
                     ? this.renderForm()
                     : this.renderConfirmationForm()}
             </div>
+            // <div className="Confirm">{this.renderConfirmationForm()}</div>
         );
     }
 }
