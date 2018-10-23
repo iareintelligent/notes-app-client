@@ -5,7 +5,6 @@ export default {
         BUCKET: "notes-app-unique-name"
     },
     apiGateway: {
-        ID: "   ",
         REGION: "us-east-2",
         URL: "https://4tkhqg43ij.execute-api.us-east-2.amazonaws.com/prod"
     },

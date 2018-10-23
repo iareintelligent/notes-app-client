@@ -38,6 +38,7 @@ export default class Notes extends React.Component {
     }
 
     getNote() {
+        console.log(`${this.props.match.params.id}`);
         return API.get("notes", `/notes/${this.props.match.params.id}`);
     }
 

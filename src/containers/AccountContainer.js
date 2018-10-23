@@ -46,7 +46,8 @@ class AccountContainer extends React.Component {
         this.setState({
             buttonColor: "secondary",
             buttonContent: error.message,
-            buttonDisabled: true
+            buttonDisabled: true,
+            isLoading: false
         });
         switch (error.code) {
             case "UserNotConfirmedException":

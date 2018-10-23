@@ -27,28 +27,31 @@ const styles = theme => ({
 });
 
 class Footer extends React.PureComponent {
+    constructor(props) {
+        super(props);
+    }
     render() {
         const { classes } = this.props;
         return (
             <div className={classes.Footer}>
-                <div className={this.props.classes.lander}>
+                <div className={classes.lander}>
                     <Typography
                         variant="h6"
                         component="h1"
-                        className={this.props.classes.landerH1}
+                        className={classes.landerH1}
                     >
                         Scratch
                     </Typography>
                     <Typography
                         variant="body1"
                         component="p"
-                        className={this.props.classes.landerP}
+                        className={classes.landerP}
                     >
                         A simple note-taking app
                     </Typography>
                 </div>
                 {this.props.isAuthenticated && (
-                    <div className={this.props.classes.lander}>
+                    <div className={classes.lander}>
                         <Button
                             aria-label="create note"
                             component={Link}

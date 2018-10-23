@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import NotesList from "../components/NotesList";
 import { API } from "aws-amplify";
 import BorderedEndlessScrollField from "../components/BorderedEndlessScrollField";
+import { Link } from "react-router-dom";
 
 const styles = theme => ({
     Home: {
@@ -80,6 +81,14 @@ class Home extends React.PureComponent {
                     >
                         A simple note-taking app
                     </Typography>
+                    <Button
+                        aria-label="Sign in"
+                        component={Link}
+                        to="/signin"
+                        color="secondary"
+                    >
+                        Sign In
+                    </Button>
                 </div>
             </div>
         );

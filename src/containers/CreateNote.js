@@ -95,23 +95,29 @@ class CreateNote extends React.Component {
                         value={this.state.content}
                         fullWidth={true}
                     />
-                    <input
-                        ref={"file-upload"}
-                        type="file"
-                        className={classes.hidden}
-                        onChange={this.handleFileChange}
-                    />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        onClick={event => {
-                            this.refs["file-upload"].click();
-                        }}
-                    >
-                        Attachments
-                        <CloudUploadIcon className={classes.rightIcon} />
-                    </Button>
+                    {!this.props.isAuthenticated && (
+                        <React.Fragment>
+                            <input
+                                ref={"file-upload"}
+                                type="file"
+                                className={classes.hidden}
+                                onChange={this.handleFileChange}
+                            />
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                className={classes.button}
+                                onClick={event => {
+                                    this.refs["file-upload"].click();
+                                }}
+                            >
+                                Attachments
+                                <CloudUploadIcon
+                                    className={classes.rightIcon}
+                                />
+                            </Button>
+                        </React.Fragment>
+                    )}
                     <Slide
                         direction="right"
                         in
