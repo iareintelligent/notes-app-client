@@ -5,7 +5,9 @@ import PropTypes from "prop-types";
 import NotesList from "../components/NotesList";
 import { API } from "aws-amplify";
 import BorderedEndlessScrollField from "../components/BorderedEndlessScrollField";
+import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
+import AddIcon from "@material-ui/icons/Add";
 
 const styles = theme => ({
     Home: {
@@ -81,14 +83,30 @@ class Home extends React.PureComponent {
                     >
                         A simple note-taking app
                     </Typography>
-                    <Button
-                        aria-label="Sign in"
-                        component={Link}
-                        to="/signin"
-                        color="secondary"
-                    >
-                        Sign In
-                    </Button>
+                    {(!this.props.isAuthenticated && (
+                        <Button
+                            aria-label="Sign in"
+                            component={Link}
+                            to="/signin"
+                            color="secondary"
+                        >
+                            Sign In
+                        </Button>
+                    )) || (
+                        <div className={classes.lander}>
+                            <Button
+                                aria-label="create note"
+                                component={Link}
+                                to="/notes/new"
+                                variant="extendedFab"
+                                color="secondary"
+                                className={classes.addButton}
+                            >
+                                <AddIcon className={classes.extendedIcon} />
+                                Create note
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         );

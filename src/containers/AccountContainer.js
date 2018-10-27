@@ -6,6 +6,7 @@ import PaperTextField from "../components/PaperTextField";
 import LoadingButton from "../components/LoadingButton";
 import Slide from "@material-ui/core/Slide";
 import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
     login: {
@@ -30,6 +31,10 @@ class AccountContainer extends React.Component {
             email: "topher@bythecode.agency",
             password: "",
             confirmPassword: "",
+            forgotPassword: false,
+            resetPassword: true,
+            newPassword: "",
+            newPasswordCode: "",
             confirmationCode: "",
             isLoading: false,
             buttonContent: "Log In",
@@ -49,10 +54,15 @@ class AccountContainer extends React.Component {
             buttonDisabled: true,
             isLoading: false
         });
+        console.log(error.code);
         switch (error.code) {
             case "UserNotConfirmedException":
                 this.setState({ newUser: "almost" });
-                console.log("almost");
+                break;
+            case "NotAuthorizedException":
+                this.setState({
+                    forgotPassword: true
+                });
                 break;
             default:
         }
@@ -62,12 +72,14 @@ class AccountContainer extends React.Component {
             ? this.setState({
                   buttonContent: "Log in",
                   buttonLoadingContent: "Logging in...",
-                  helperButtonContent: "Create an account"
+                  helperButtonContent: "Create an account",
+                  forgotPassword: false
               })
             : this.setState({
                   buttonContent: "Create account",
                   buttonLoadingContent: "Creating account...",
-                  helperButtonContent: "Cancel"
+                  helperButtonContent: "Cancel",
+                  forgotPassword: false
               });
     }
 
@@ -99,6 +111,7 @@ class AccountContainer extends React.Component {
             try {
                 await Auth.signIn(this.state.email, this.state.password);
                 this.props.userHasAuthenticated(true);
+                this.setState({ forgotPassword: false });
             } catch (error) {
                 this.props.userHasAuthenticated(false);
                 console.log(error);
@@ -143,81 +156,149 @@ class AccountContainer extends React.Component {
         });
         this.resetButtonState();
     };
+    forgotPassword = async event => {
+        try {
+            await Auth.forgotPassword(this.state.email).then(data =>
+                console.log(data)
+            );
+            this.setState({ resetPassword: true });
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    forgotPasswordSubmit = async event => {
+        try {
+            await Auth.forgotPasswordSubmit(
+                this.state.email,
+                this.state.newPasswordCode,
+                this.state.newPassword
+            ).then(data => console.log(data));
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     renderForm() {
         const { classes } = this.props;
-        return (
-            <div className={classes.login}>
-                <form
-                    onSubmit={this.handleSubmit}
-                    className={classes.loginForm}
-                >
-                    <PaperTextField
-                        id="email"
-                        label="email"
-                        type="email"
-                        handleChange={this.handleChange}
-                        value={this.state.email}
-                        autoComplete="new-password"
-                        fullWidth
-                    />
-                    <PaperTextField
-                        id="password"
-                        label="password"
-                        type="password"
-                        order={1}
-                        handleChange={this.handleChange}
-                        value={this.state.password}
-                        autoComplete="new-password"
-                    />
-                    <PaperTextField
-                        error={this.state.validSignupForm}
-                        id="confirmPassword"
-                        label="confirm password"
-                        type="password"
-                        order={2}
-                        handleChange={this.handleChange}
-                        renderField={this.state.signingUp}
-                        value={this.state.confirmPassword}
-                        autoComplete="new-password"
-                    />
-                    <Slide
-                        direction="right"
-                        in
-                        mountOnEnter
-                        unmountOnExit
-                        style={{ transitionDelay: 300 }}
+        {
+            return !this.state.resetPassword ? (
+                <div className={classes.login}>
+                    <form
+                        onSubmit={this.handleSubmit}
+                        className={classes.loginForm}
                     >
-                        <LoadingButton
-                            isLoading={this.state.isLoading}
-                            text={this.state.buttonContent}
-                            loadingText={this.state.buttonLoadingContent}
-                            color={this.state.buttonColor}
-                            disabled={
-                                this.state.buttonDisabled &&
-                                !this.validateSignupForm()
-                            }
-                        />
-                    </Slide>
-                    <Slide
-                        direction="right"
-                        in
-                        mountOnEnter
-                        unmountOnExit
-                        style={{ transitionDelay: 400 }}
-                    >
-                        <Button
-                            className={classes.button}
-                            color="primary"
+                        <PaperTextField
+                            id="email"
+                            label="email"
+                            type="email"
+                            handleChange={this.handleChange}
+                            value={this.state.email}
+                            autoComplete="new-password"
                             fullWidth
-                            onClick={this.handleSignup}
+                        />
+                        <PaperTextField
+                            id="password"
+                            label="password"
+                            type="password"
+                            order={1}
+                            renderField={!this.state.newPassword}
+                            handleChange={this.handleChange}
+                            value={this.state.password}
+                            autoComplete="new-password"
+                        />
+                        <PaperTextField
+                            error={this.state.validSignupForm}
+                            id="confirmPassword"
+                            label="confirm password"
+                            type="password"
+                            order={2}
+                            handleChange={this.handleChange}
+                            renderField={this.state.signingUp}
+                            value={this.state.confirmPassword}
+                            autoComplete="new-password"
+                        />
+
+                        <Slide
+                            direction="right"
+                            mountOnEnter
+                            unmountOnExit
+                            in={this.state.forgotPassword}
+                            style={{ transitionDelay: 300 }}
                         >
-                            {this.state.helperButtonContent}
-                        </Button>
-                    </Slide>
-                </form>
-            </div>
-        );
+                            <Button
+                                className={classes.button}
+                                color="primary"
+                                fullWidth
+                                onClick={this.forgotPassword}
+                            >
+                                I heart new passwords
+                            </Button>
+                        </Slide>
+                        <Slide
+                            direction="right"
+                            in
+                            mountOnEnter
+                            unmountOnExit
+                            style={{ transitionDelay: 300 }}
+                        >
+                            <LoadingButton
+                                isLoading={this.state.isLoading}
+                                text={this.state.buttonContent}
+                                loadingText={this.state.buttonLoadingContent}
+                                color={this.state.buttonColor}
+                                disabled={
+                                    this.state.buttonDisabled &&
+                                    !this.validateSignupForm()
+                                }
+                            />
+                        </Slide>
+                        <Slide
+                            direction="right"
+                            in
+                            mountOnEnter
+                            unmountOnExit
+                            style={{ transitionDelay: 400 }}
+                        >
+                            <Button
+                                className={classes.button}
+                                color="primary"
+                                fullWidth
+                                onClick={this.handleSignup}
+                            >
+                                {this.state.helperButtonContent}
+                            </Button>
+                        </Slide>
+                    </form>
+                </div>
+            ) : (
+                <div className={classes.login}>
+                    <form onSubmit={this.forgotPasswordSubmit}>
+                        <Typography variant="title" component="h2">
+                            {this.state.email}
+                        </Typography>
+                        <PaperTextField
+                            id="newPassword"
+                            label="New unforgettable password"
+                            type="password"
+                            order={1}
+                            handleChange={this.handleChange}
+                            value={this.state.newPassword}
+                            autoComplete="new-password"
+                        />
+                        <PaperTextField
+                            id="newPasswordCode"
+                            label="newPasswordCode"
+                            type="newPasswordCode"
+                            order={1}
+                            renderField={this.state.newPassword}
+                            handleChange={this.handleChange}
+                            value={this.state.newPasswordCode}
+                            autoComplete="new-password"
+                        />
+                    </form>
+                </div>
+            );
+        }
     }
     handleResendVerification = async event => {
         try {

@@ -1,9 +1,8 @@
 import React from "react";
-
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { Link } from "react-router-dom";
@@ -19,7 +18,7 @@ const styles = theme => ({
         alignItems: "center",
         position: "relative"
     },
-    buttonBase: {
+    IconButton: {
         margin: theme.spacing.unit,
         height: "100%",
         width: "50px",
@@ -30,16 +29,18 @@ const styles = theme => ({
     }
 });
 
-class Note extends React.PureComponent {
+class Note extends React.Component {
     constructor(props) {
         super(props);
 
-        this.deleteNote = this.deleteNote.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
     }
-    deleteNote(event) {
-        console.log(event.id)
-        this.props.deleteNote(event.id);
-    }
+
+    handleDelete = event => {
+        event.persist();
+        this.props.handleDelete(event);
+    };
+
     render() {
         const { note, classes } = this.props;
         return (
@@ -49,18 +50,18 @@ class Note extends React.PureComponent {
                         {note.content.trim().split("\n")[0]}
                     </Typography>
                     <div className={classes.grow} />
-                    <ButtonBase
-                        className={classes.buttonBase}
-                        id={note.id}
-                        onClick={this.deleteNote}
+                    <IconButton
+                        className={classes.IconButton}
+                        id={note.noteId}
+                        onClick={this.handleDelete}
                     >
                         <DeleteIcon
                             className={classes.rightIcon}
                             color="secondary"
                         />
-                    </ButtonBase>
-                    <ButtonBase
-                        className={classes.buttonBase}
+                    </IconButton>
+                    <IconButton
+                        className={classes.IconButton}
                         aria-label="edit note"
                         component={Link}
                         to={`/notes/${note.noteId}`}
@@ -69,7 +70,7 @@ class Note extends React.PureComponent {
                             className={classes.rightIcon}
                             color="primary"
                         />
-                    </ButtonBase>
+                    </IconButton>
                 </CardContent>
             </Card>
         );

@@ -27,9 +27,6 @@ const styles = theme => ({
 });
 
 class Footer extends React.PureComponent {
-    constructor(props) {
-        super(props);
-    }
     render() {
         const { classes } = this.props;
         return (

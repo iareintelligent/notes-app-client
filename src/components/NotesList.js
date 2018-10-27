@@ -12,13 +12,41 @@ const styles = theme => ({
 });
 
 class NotesList extends React.Component {
-    deleteNote = async (id = null) => {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isDeleting: false,
+            notes: this.props.notes.map(note => {
+                return note.noteId;
+            })
+        };
+    }
+
+    removeNote(id) {
+        this.setState({
+            notes: this.state.notes.filter(note => {
+                return note !== id;
+            })
+        });
+    }
+
+    deleteNote(event) {
+        return API.del("notes", `/notes/${event.currentTarget.id}`);
+    }
+
+    handleDelete = async event => {
+        const id = event.currentTarget.id;
+        this.removeNote(id);
+        this.setState({ isDeleting: true });
         try {
-            API.del("notes", `notes/${id}`);
+            await this.deleteNote(event);
         } catch (error) {
-            alert(error);
+            console.log(error);
         }
+        this.setState({ isDeleting: false });
     };
+
     render() {
         const { notes, classes } = this.props;
         return [{}].concat(notes).map(
@@ -28,14 +56,18 @@ class NotesList extends React.Component {
                         direction="right"
                         mountOnEnter
                         unmountOnExit
-                        in
                         style={{ transitionDelay: i * 100 }}
-                        key={i}
+                        key={note.noteId}
+                        in={
+                            this.state.notes.indexOf(note.noteId) === -1
+                                ? false
+                                : true
+                        }
                     >
                         <Note
                             note={note}
                             className={classes.note}
-                            deleteNote={this.deleteNote}
+                            handleDelete={this.handleDelete}
                         />
                     </Slide>
                 ) : (
