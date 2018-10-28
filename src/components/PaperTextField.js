@@ -56,6 +56,7 @@ class PaperTextField extends React.Component {
                 value={value}
                 onChange={this.handleChange}
                 fullWidth={this.props.fullWidth}
+                disabled={this.props.disabled}
             />
         );
     }

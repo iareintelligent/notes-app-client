@@ -8,17 +8,18 @@ export default ({
     text,
     loadingText,
     disabled = false,
+    variant = "text",
     ...props
 }) => (
     <Button
         type="submit"
-        variant="contained"
+        variant={variant}
         fullWidth
         className="LoadingButton"
         disabled={disabled || isLoading}
         {...props}
     >
-        {isLoading && <AutorenewIcon className="loading" />}
+        {isLoading && !disabled && <AutorenewIcon className="loading" />}
         {!isLoading ? text : loadingText}
     </Button>
 );

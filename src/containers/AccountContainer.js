@@ -5,8 +5,6 @@ import { Auth } from "aws-amplify";
 import PaperTextField from "../components/PaperTextField";
 import LoadingButton from "../components/LoadingButton";
 import Slide from "@material-ui/core/Slide";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
     login: {
@@ -28,59 +26,294 @@ class AccountContainer extends React.Component {
         super(props);
 
         this.state = {
+            formAction: "forgotPassword",
             email: "topher@bythecode.agency",
             password: "",
-            confirmPassword: "",
-            forgotPassword: false,
-            resetPassword: true,
-            newPassword: "",
-            newPasswordCode: "",
+            passwordLabel: "password",
+            matchingPassword: "",
             confirmationCode: "",
-            isLoading: false,
+            disableEmailInput: true,
+            disableActionButton: false,
+            showPasswordInput: true,
+            showMatchingPasswordInput: false,
+            showConfirmationInput: false,
             buttonContent: "Log In",
             buttonLoadingContent: "Logging In...",
-            buttonDisabled: false,
-            buttonColor: "default",
-            helperButtonContent: "Create an account",
-            signingIn: true,
-            signingUp: false,
-            newUser: null
+            successInfo: "",
+            isLoading: false
         };
     }
-    transformErrorButton(error) {
+    emailInput = () => (
+        <React.Fragment>
+            <PaperTextField
+                id="email"
+                label="email"
+                type="email"
+                handleChange={this.handleChange}
+                value={this.state.email}
+                autoComplete="new-password"
+                disabled={this.state.disableEmailInput}
+                fullWidth
+            />
+        </React.Fragment>
+    );
+    passwordInput = (order = 0) => (
+        <React.Fragment>
+            <PaperTextField
+                id="password"
+                label={this.state.passwordLabel}
+                type="password"
+                order={order}
+                renderField={this.state.showPasswordInput}
+                handleChange={this.handleChange}
+                value={this.state.password}
+                autoComplete="new-password"
+            />
+        </React.Fragment>
+    );
+    matchingPasswordInput = (order = 0) => (
+        <React.Fragment>
+            <PaperTextField
+                error={this.state.validSignupForm}
+                id="confirmPassword"
+                label="confirm password"
+                type="password"
+                order={order}
+                handleChange={this.handleChange}
+                renderField={this.state.showMatchingPasswordInput}
+                value={this.state.confirmPassword}
+                autoComplete="new-password"
+            />
+        </React.Fragment>
+    );
+    confirmationCodeInput = (order = 0) => (
+        <React.Fragment>
+            <PaperTextField
+                id="confirmationCode"
+                label="confirmation code"
+                type="text"
+                order={order}
+                handleChange={this.handleChange}
+                renderField={this.state.showConfirmationInput}
+                value={this.state.confirmationCode}
+                fullWidth
+            />
+            {this.renderFormActionButton({
+                order: 0,
+                buttonContent: "Resend confirmation code",
+                buttonLoadingContent: "Resending confirmation code...",
+                disabled: this.state.disableActionButton,
+                type: "button",
+                renderField:
+                    this.state.showConfirmationInput &&
+                    this.state.confirmationCode.length === 0,
+                onClick: this.handleResendConfirmation
+            })}
+        </React.Fragment>
+    );
+
+    renderFormActionButton = ({
+        order = 0,
+        color = "primary",
+        disabled = false,
+        buttonContent = this.state.buttonContent,
+        buttonLoadingContent = this.state.buttonLoadingContent,
+        renderField = true,
+        ...props
+    }) => {
+        const delay = parseInt(order) * 100;
+        return (
+            <Slide
+                direction="right"
+                mountOnEnter
+                unmountOnExit
+                in={renderField}
+                style={{ transitionDelay: order * 100 }}
+            >
+                <LoadingButton
+                    isLoading={this.state.isLoading}
+                    text={buttonContent}
+                    loadingText={buttonLoadingContent}
+                    color={color}
+                    disabled={disabled}
+                    {...props}
+                />
+            </Slide>
+        );
+    };
+
+    setSignInState() {
         this.setState({
-            buttonColor: "secondary",
-            buttonContent: error.message,
-            buttonDisabled: true,
-            isLoading: false
+            isLoading: false,
+            formAction: "signIn",
+            disableEmailInput: false,
+            disableActionButton: false,
+            showPasswordInput: true,
+            showMatchingPasswordInput: false,
+            showConfirmationInput: false,
+            buttonContent: "Log in",
+            buttonLoadingContent: "Logging in...",
+            passwordLabel: "password"
         });
-        console.log(error.code);
-        switch (error.code) {
-            case "UserNotConfirmedException":
-                this.setState({ newUser: "almost" });
+    }
+    setSignUpState() {
+        this.setState({
+            formAction: "signUp",
+            isLoading: false,
+            disableEmailInput: false,
+            disableActionButton: false,
+            showPasswordInput: true,
+            showMatchingPasswordInput: true,
+            showConfirmationInput: false,
+            passwordLabel: "password",
+            buttonContent: "Sign up",
+            buttonLoadingContent: "Signing up..."
+        });
+    }
+    setConfirmSignUpState() {
+        this.setState({
+            isLoading: false,
+            formAction: "confirmSignUp",
+            disableEmailInput: true,
+            disableActionButton: false,
+            showPasswordInput: false,
+            showMatchingPasswordInput: false,
+            showConfirmationInput: true
+        });
+    }
+    setSignInPasswordErrorState(error = "") {
+        this.setState({
+            isLoading: false,
+            formAction: "signInPasswordError",
+            disableEmailInput: false,
+            showPasswordInput: true,
+            showMatchingPasswordInput: false,
+            showConfirmationInput: false,
+            disableActionButton: true,
+            buttonContent: error,
+            buttonLoadingContent: "Sending confirmation code..."
+        });
+    }
+    setForgotPasswordState() {
+        this.setState({
+            formAction: "forgotPassword",
+            isLoading: false,
+            disableEmailInput: true,
+            disableActionButton: false,
+            showPasswordInput: true,
+            showMatchingPasswordInput: false,
+            showConfirmationInput: true,
+            buttonContent: "Change your password",
+            buttonLoadingText: "Bothering our engineers...",
+            passwordLabel: "new password"
+        });
+    }
+
+    handleResendConfirmation = async event => {
+        this.setState({ isLoading: true });
+        switch (this.state.formAction) {
+            case "confirmSignup":
+                this.handleConfirmSignUp();
                 break;
-            case "NotAuthorizedException":
-                this.setState({
-                    forgotPassword: true
-                });
+            case "forgotPassword":
+                this.forgotPassword();
+                break;
+            default:
+                break;
+        }
+    };
+
+    handleSignIn = async event => {
+        try {
+            await Auth.signIn(this.state.email, this.state.password);
+            this.props.userHasAuthenticated(true);
+            this.props.history.push("/");
+        } catch (error) {
+            console.log(error);
+            if (error.code === "NotAuthorizedException") {
+                this.setSignInPasswordErrorState(error.message);
+                this.props.userHasAuthenticated(false);
+            }
+        }
+    };
+
+    handleResetPassword = async event => {
+        try {
+            await Auth.forgotPassword(this.state.email);
+            this.setState({ password: "" });
+            this.setForgotPasswordState();
+        } catch (e) {
+            this.setState({ buttonContent: e.message });
+        }
+    };
+
+    handleSubmitNewPassword = async event => {
+        try {
+            Auth.forgotPasswordSubmit(
+                this.state.email,
+                this.state.confirmationCode,
+                this.state.password
+            );
+        } catch (e) {
+            this.setState({ buttonContent: e.message });
+        }
+        this.setSignInState();
+        this.props.history.push("/signin");
+    };
+
+    handleSignUp = async event => {
+        try {
+            const newUser = await Auth.signUp({
+                username: this.state.email,
+                password: this.state.password
+            });
+            this.setState({ newUser });
+            this.setConfirmSignUpState();
+        } catch (e) {
+            this.setState({ buttonContent: e.message });
+        }
+    };
+    handleConfirmSignUp = async event => {
+        try {
+            await Auth.confirmSignUp(
+                this.state.email,
+                this.state.confirmationCode
+            );
+            await Auth.signIn(this.state.email, this.state.password);
+            this.props.userHasAuthenticated(true);
+            this.props.history.push("/");
+        } catch (e) {
+            this.setState({ buttonContent: e.message });
+        }
+    };
+
+    handleFormSubmit = async event => {
+        event.preventDefault();
+        this.setState({ isLoading: true });
+        switch (this.state.formAction) {
+            case "signIn":
+                this.handleSignIn(event);
+                break;
+            case "signInPasswordError":
+                //only clickable button = "reset password"
+                this.handleResetPassword(event);
+                break;
+            case "forgotPassword":
+                //action button = "reset password"; requires: confirmation code and password.
+                this.handleSubmitNewPassword(event);
+                break;
+            case "signUp":
+                this.handleSignUp();
+                break;
+            case "confirmSignup":
+                this.handleConfirmSignUp();
                 break;
             default:
         }
-    }
-    resetButtonState() {
-        this.state.signingUp
-            ? this.setState({
-                  buttonContent: "Log in",
-                  buttonLoadingContent: "Logging in...",
-                  helperButtonContent: "Create an account",
-                  forgotPassword: false
-              })
-            : this.setState({
-                  buttonContent: "Create account",
-                  buttonLoadingContent: "Creating account...",
-                  helperButtonContent: "Cancel",
-                  forgotPassword: false
-              });
+    };
+
+    componentWillMount() {
+        this.setSignInState();
     }
 
     validateSignupForm() {
@@ -103,203 +336,16 @@ class AccountContainer extends React.Component {
         });
     };
 
-    handleSubmit = async event => {
-        event.preventDefault();
-
-        this.setState({ isLoading: true });
-        if (this.state.signingIn) {
-            try {
-                await Auth.signIn(this.state.email, this.state.password);
-                this.props.userHasAuthenticated(true);
-                this.setState({ forgotPassword: false });
-            } catch (error) {
-                this.props.userHasAuthenticated(false);
-                console.log(error);
-                this.transformErrorButton(error);
-            }
-        } else if (this.state.signingUp) {
-            try {
-                const newUser = await Auth.signUp({
-                    username: this.state.email,
-                    password: this.state.password
-                });
-                this.setState({ newUser });
-            } catch (e) {
-                alert(e.message);
-                this.setState({ isLoading: false });
-            }
-        }
-    };
-
-    handleConfirmationSubmit = async event => {
-        event.preventDefault();
-        this.setState({ isLoading: true });
-        try {
-            await Auth.confirmSignUp(
-                this.state.email,
-                this.state.confirmationCode
-            );
-            await Auth.signIn(this.state.email, this.state.password);
-            this.props.userHasAuthenticated(true);
-            this.props.history.push("/");
-        } catch (e) {
-            alert(e.message);
-            this.setState({ isLoading: false });
-        }
-    };
-
-    handleSignup = () => {
-        this.setState({
-            signingIn: !this.state.signingIn,
-            signingUp: !this.state.signingUp,
-            buttonColor: "default"
-        });
-        this.resetButtonState();
-    };
     forgotPassword = async event => {
+        this.setState({ isLoading: true });
         try {
-            await Auth.forgotPassword(this.state.email).then(data =>
-                console.log(data)
-            );
-            this.setState({ resetPassword: true });
+            await Auth.forgotPassword(this.state.email);
         } catch (e) {
-            console.log(e);
+            this.everythingsEffed(this.state.formAction, e.message);
         }
-    };
-    forgotPasswordSubmit = async event => {
-        try {
-            await Auth.forgotPasswordSubmit(
-                this.state.email,
-                this.state.newPasswordCode,
-                this.state.newPassword
-            ).then(data => console.log(data));
-        } catch (e) {
-            console.log(e);
-        }
+        this.setState({ isLoading: false });
     };
 
-    renderForm() {
-        const { classes } = this.props;
-        {
-            return !this.state.resetPassword ? (
-                <div className={classes.login}>
-                    <form
-                        onSubmit={this.handleSubmit}
-                        className={classes.loginForm}
-                    >
-                        <PaperTextField
-                            id="email"
-                            label="email"
-                            type="email"
-                            handleChange={this.handleChange}
-                            value={this.state.email}
-                            autoComplete="new-password"
-                            fullWidth
-                        />
-                        <PaperTextField
-                            id="password"
-                            label="password"
-                            type="password"
-                            order={1}
-                            renderField={!this.state.newPassword}
-                            handleChange={this.handleChange}
-                            value={this.state.password}
-                            autoComplete="new-password"
-                        />
-                        <PaperTextField
-                            error={this.state.validSignupForm}
-                            id="confirmPassword"
-                            label="confirm password"
-                            type="password"
-                            order={2}
-                            handleChange={this.handleChange}
-                            renderField={this.state.signingUp}
-                            value={this.state.confirmPassword}
-                            autoComplete="new-password"
-                        />
-
-                        <Slide
-                            direction="right"
-                            mountOnEnter
-                            unmountOnExit
-                            in={this.state.forgotPassword}
-                            style={{ transitionDelay: 300 }}
-                        >
-                            <Button
-                                className={classes.button}
-                                color="primary"
-                                fullWidth
-                                onClick={this.forgotPassword}
-                            >
-                                I heart new passwords
-                            </Button>
-                        </Slide>
-                        <Slide
-                            direction="right"
-                            in
-                            mountOnEnter
-                            unmountOnExit
-                            style={{ transitionDelay: 300 }}
-                        >
-                            <LoadingButton
-                                isLoading={this.state.isLoading}
-                                text={this.state.buttonContent}
-                                loadingText={this.state.buttonLoadingContent}
-                                color={this.state.buttonColor}
-                                disabled={
-                                    this.state.buttonDisabled &&
-                                    !this.validateSignupForm()
-                                }
-                            />
-                        </Slide>
-                        <Slide
-                            direction="right"
-                            in
-                            mountOnEnter
-                            unmountOnExit
-                            style={{ transitionDelay: 400 }}
-                        >
-                            <Button
-                                className={classes.button}
-                                color="primary"
-                                fullWidth
-                                onClick={this.handleSignup}
-                            >
-                                {this.state.helperButtonContent}
-                            </Button>
-                        </Slide>
-                    </form>
-                </div>
-            ) : (
-                <div className={classes.login}>
-                    <form onSubmit={this.forgotPasswordSubmit}>
-                        <Typography variant="title" component="h2">
-                            {this.state.email}
-                        </Typography>
-                        <PaperTextField
-                            id="newPassword"
-                            label="New unforgettable password"
-                            type="password"
-                            order={1}
-                            handleChange={this.handleChange}
-                            value={this.state.newPassword}
-                            autoComplete="new-password"
-                        />
-                        <PaperTextField
-                            id="newPasswordCode"
-                            label="newPasswordCode"
-                            type="newPasswordCode"
-                            order={1}
-                            renderField={this.state.newPassword}
-                            handleChange={this.handleChange}
-                            value={this.state.newPasswordCode}
-                            autoComplete="new-password"
-                        />
-                    </form>
-                </div>
-            );
-        }
-    }
     handleResendVerification = async event => {
         try {
             await Auth.resendSignUp(this.state.email);
@@ -313,66 +359,37 @@ class AccountContainer extends React.Component {
             isLoading: false
         });
     };
-    renderConfirmationForm() {
+
+    render() {
         const { classes } = this.props;
         return (
             <div className={classes.login}>
                 <form
-                    onSubmit={this.handleConfirmationSubmit}
                     className={classes.loginForm}
+                    onSubmit={this.handleFormSubmit}
                 >
-                    <PaperTextField
-                        id="confirmationCode"
-                        label="Confirmation code"
-                        type="text"
-                        order={0}
-                        handleChange={this.handleChange}
-                        renderField={true}
-                        value={this.state.confirmationCode}
-                        fullWidth
-                    />
-                    <Slide
-                        direction="right"
-                        in
-                        mountOnEnter
-                        unmountOnExit
-                        style={{ transitionDelay: 100 }}
-                    >
-                        <LoadingButton
-                            isLoading={this.state.isLoading}
-                            text="Verify"
-                            loadingText="Verifying..."
-                            disabled={!this.validateConfirmationForm()}
-                        />
-                    </Slide>
-                    <Slide
-                        direction="right"
-                        in
-                        mountOnEnter
-                        unmountOnExit
-                        style={{ transitionDelay: 200 }}
-                    >
-                        <Button
-                            variant="text"
-                            color="primary"
-                            onClick={this.handleResendVerification}
-                        >
-                            Resend verification code
-                        </Button>
-                    </Slide>
+                    {this.emailInput()}
+                    {this.confirmationCodeInput()}
+                    {this.passwordInput()}
+                    {this.matchingPasswordInput()}
+                    {this.state.formAction === "signInPasswordError" &&
+                        this.renderFormActionButton({
+                            order: 0,
+                            buttonContent: "Reset Password",
+                            buttonLoadingContent: "Bothering our engineers...",
+                            color: "secondary",
+                            disabled: false,
+                            type: "submit"
+                        })}
+                    {this.renderFormActionButton({
+                        color: !this.state.disableActionButton
+                            ? "default"
+                            : "secondary",
+                        disabled: this.state.disableActionButton,
+                        variant: "contained"
+                    })}
                 </form>
             </div>
-        );
-    }
-
-    render() {
-        return (
-            <div className="Confirm">
-                {this.state.newUser === null
-                    ? this.renderForm()
-                    : this.renderConfirmationForm()}
-            </div>
-            // <div className="Confirm">{this.renderConfirmationForm()}</div>
         );
     }
 }
