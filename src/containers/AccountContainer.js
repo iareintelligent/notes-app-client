@@ -5,6 +5,7 @@ import { Auth } from "aws-amplify";
 import PaperTextField from "../components/PaperTextField";
 import LoadingButton from "../components/LoadingButton";
 import Slide from "@material-ui/core/Slide";
+import Button from "@material-ui/core/Button";
 
 const styles = theme => ({
     login: {
@@ -16,7 +17,6 @@ const styles = theme => ({
         textAlign: "center"
     },
     button: {
-        marginTop: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 2
     }
 });
@@ -37,8 +37,11 @@ class AccountContainer extends React.Component {
             showPasswordInput: true,
             showMatchingPasswordInput: false,
             showConfirmationInput: false,
-            buttonContent: "Log In",
-            buttonLoadingContent: "Logging In...",
+            showSignUpButton: true,
+
+            signUpButtonText: "Sign up",
+            buttonContent: "Log in",
+            buttonLoadingContent: "Logging in...",
             successInfo: "",
             isLoading: false
         };
@@ -122,13 +125,14 @@ class AccountContainer extends React.Component {
         ...props
     }) => {
         const delay = parseInt(order) * 100;
+        const { classes } = this.props;
         return (
             <Slide
                 direction="right"
                 mountOnEnter
                 unmountOnExit
                 in={renderField}
-                style={{ transitionDelay: order * 100 }}
+                style={{ transitionDelay: delay }}
             >
                 <LoadingButton
                     isLoading={this.state.isLoading}
@@ -136,14 +140,17 @@ class AccountContainer extends React.Component {
                     loadingText={buttonLoadingContent}
                     color={color}
                     disabled={disabled}
+                    className={classes.button}
                     {...props}
                 />
             </Slide>
         );
     };
 
-    setSignInState() {
+    setSignInState = () => {
         this.setState({
+            showSignUpButton: true,
+            signUpButtonText: "Sign up",
             isLoading: false,
             formAction: "signIn",
             disableEmailInput: false,
@@ -155,9 +162,11 @@ class AccountContainer extends React.Component {
             buttonLoadingContent: "Logging in...",
             passwordLabel: "password"
         });
-    }
-    setSignUpState() {
+    };
+    setSignUpState = () => {
         this.setState({
+            showSignUpButton: true,
+            signUpButtonText: "Cancel",
             formAction: "signUp",
             isLoading: false,
             disableEmailInput: false,
@@ -169,9 +178,11 @@ class AccountContainer extends React.Component {
             buttonContent: "Sign up",
             buttonLoadingContent: "Signing up..."
         });
-    }
+    };
     setConfirmSignUpState() {
         this.setState({
+            showSignUpButton: true,
+            signUpButtonText: "Cancel",
             isLoading: false,
             formAction: "confirmSignUp",
             disableEmailInput: true,
@@ -183,6 +194,8 @@ class AccountContainer extends React.Component {
     }
     setSignInPasswordErrorState(error = "") {
         this.setState({
+            showSignUpButton: true,
+            signUpButtonText: "Sign up",
             isLoading: false,
             formAction: "signInPasswordError",
             disableEmailInput: false,
@@ -196,6 +209,7 @@ class AccountContainer extends React.Component {
     }
     setForgotPasswordState() {
         this.setState({
+            showSignUpButton: false,
             formAction: "forgotPassword",
             isLoading: false,
             disableEmailInput: true,
@@ -253,12 +267,21 @@ class AccountContainer extends React.Component {
                 this.state.email,
                 this.state.confirmationCode,
                 this.state.password
-            );
+            )
+                .then(data => {
+                    console.log(data);
+                    this.props.userHasAuthenticated(true);
+                })
+                .catch(err => {
+                    console.log(err.message);
+                    this.setState({
+                        buttonContent: err.message,
+                        isLoading: false
+                    });
+                });
         } catch (e) {
-            this.setState({ buttonContent: e.message });
+            // this.setState({ buttonContent: e.message });
         }
-        this.setSignInState();
-        this.props.history.push("/signin");
     };
 
     handleSignUp = async event => {
@@ -312,10 +335,6 @@ class AccountContainer extends React.Component {
         }
     };
 
-    componentWillMount() {
-        this.setSignInState();
-    }
-
     validateSignupForm() {
         return (
             this.state.email.length > 0 &&
@@ -360,6 +379,24 @@ class AccountContainer extends React.Component {
         });
     };
 
+    handleSignUpButton = () => {
+        switch (this.state.formAction) {
+            case "signIn":
+                this.setSignUpState();
+                break;
+            case "signInPasswordError":
+                this.setSignUpState();
+                break;
+
+            default:
+                this.setSignInState();
+        }
+    };
+
+    componentWillMount() {
+        this.setSignInState();
+    }
+
     render() {
         const { classes } = this.props;
         return (
@@ -385,9 +422,23 @@ class AccountContainer extends React.Component {
                         color: !this.state.disableActionButton
                             ? "default"
                             : "secondary",
+                        buttonContent: this.state.buttonContent,
                         disabled: this.state.disableActionButton,
                         variant: "contained"
                     })}
+                    {this.state.showSignUpButton && (
+                        <Button
+                            color={
+                                !this.state.disabledActionButton
+                                    ? "primary"
+                                    : "secondary"
+                            }
+                            type="button"
+                            onClick={this.handleSignUpButton}
+                        >
+                            {this.state.signUpButtonText || "Error"}
+                        </Button>
+                    )}
                 </form>
             </div>
         );

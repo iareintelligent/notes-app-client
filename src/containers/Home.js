@@ -51,8 +51,7 @@ class Home extends React.PureComponent {
         }
 
         try {
-            const notes = await this.notes();
-            this.setState({ notes });
+            await this.notes();
         } catch (error) {
             alert(error);
         }
@@ -61,7 +60,11 @@ class Home extends React.PureComponent {
     }
 
     notes() {
-        return API.get("notes", "/notes");
+        API.get("notes", "/notes")
+            .then(data => {
+                this.setState({ notes: data });
+            })
+            .catch(err => console.log(err));
     }
 
     renderLander() {

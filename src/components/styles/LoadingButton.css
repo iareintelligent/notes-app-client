@@ -3,6 +3,7 @@
     top: 2px;
     animation: spin 3s infinite linear;
 }
+
 @keyframes spin {
     from {
         transform: scale(1) rotate(0deg);

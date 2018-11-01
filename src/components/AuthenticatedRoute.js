@@ -9,7 +9,7 @@ export default ({ component: C, props: cProps, ...rest }) => (
                 <C {...props} {...cProps} />
             ) : (
                 <Redirect
-                    to={`/login?redirect=${props.location.pathname}${
+                    to={`/signin?redirect=${props.location.pathname}${
                         props.location.search
                     }`}
                 />
