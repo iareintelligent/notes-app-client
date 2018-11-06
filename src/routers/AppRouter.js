@@ -17,7 +17,6 @@ const styles = theme => ({
         backgroundSize: "1.5rem 1.5rem",
         backgroundImage:
             "linear-gradient(to right, #93FDFE 1px, transparent 1px), linear-gradient(to bottom, #93FDFE 1px, transparent 1px)",
-        overflow: "scroll",
         height: "80vh",
         padding: theme.spacing.unit
     }

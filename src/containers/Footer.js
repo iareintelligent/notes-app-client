@@ -46,6 +46,9 @@ class Footer extends React.PureComponent {
                     >
                         A simple note-taking app
                     </Typography>
+                    <Typography variant="caption" component="p">
+                        ver 0.4
+                    </Typography>
                 </div>
                 {this.props.isAuthenticated && (
                     <div className={classes.lander}>

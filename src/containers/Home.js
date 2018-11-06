@@ -11,7 +11,8 @@ import AddIcon from "@material-ui/icons/Add";
 
 const styles = theme => ({
     Home: {
-        textAlign: "center"
+        textAlign: "center",
+        maxHeight: "100%"
     },
     container: {
         marginTop: theme.spacing.unit * 2
@@ -24,7 +25,8 @@ const styles = theme => ({
     },
     lander: {
         padding: "80px 0",
-        textAlign: "center"
+        textAlign: "center",
+        maxHeight: "100%"
     },
     landerH1: {
         fontFamily: "'Open Sans', sans-serif",
@@ -115,12 +117,13 @@ class Home extends React.PureComponent {
         );
     }
     renderNotes() {
+        const { classes } = this.props;
         const notes = (
-            <React.Fragment>
+            <div className={classes.Home}>
                 {!this.state.isLoading && (
                     <NotesList notes={this.state.notes} />
                 )}
-            </React.Fragment>
+            </div>
         );
         return (
             <BorderedEndlessScrollField content={notes} label={"Your Notes"} />

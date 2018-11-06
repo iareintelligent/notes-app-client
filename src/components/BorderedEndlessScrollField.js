@@ -6,7 +6,7 @@ import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
     root: {
-        background: "transparent",
+        background: "rgba(255, 255, 255, .75)",
         padding: theme.spacing.unit,
         minHeight: "45vh",
         maxHeight: "100%",

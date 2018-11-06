@@ -67,8 +67,8 @@ class CreateNote extends React.Component {
             const attachment = this.file ? await s3Upload(this.file) : null;
             await this.createNote({ attachment, content: this.state.content });
             this.props.history.push("/");
-        } catch (error) {
-            alert(error);
+        } catch (code) {
+            console.log(code);
             this.setState({ isLoading: false });
         }
     };

@@ -8,6 +8,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
+import TextField from "@material-ui/core/TextField";
 
 const styles = theme => ({
     card: {
@@ -32,7 +33,6 @@ const styles = theme => ({
 class Note extends React.Component {
     constructor(props) {
         super(props);
-
         this.handleDelete = this.handleDelete.bind(this);
     }
 
@@ -46,7 +46,7 @@ class Note extends React.Component {
         return (
             <Card className={classes.card}>
                 <CardContent className={classes.cardContent}>
-                    <Typography variant="button">
+                    <Typography variant="body1">
                         {note.content.trim().split("\n")[0]}
                     </Typography>
                     <div className={classes.grow} />
