@@ -126,7 +126,11 @@ class Home extends React.PureComponent {
             </div>
         );
         return (
-            <BorderedEndlessScrollField content={notes} label={"Your Notes"} />
+            <BorderedEndlessScrollField
+                content={notes}
+                label={"Your Notes"}
+                className={classes.maxHeight}
+            />
         );
     }
     render() {

@@ -9,7 +9,8 @@ const styles = theme => ({
         background: "rgba(255, 255, 255, .75)",
         padding: theme.spacing.unit,
         minHeight: "45vh",
-        maxHeight: "100%",
+        maxHeight: "75vh",
+        overflow: "scroll",
         border: "1px solid rgba(0, 0, 0, .54)",
         position: "relative"
     },

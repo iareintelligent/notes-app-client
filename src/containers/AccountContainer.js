@@ -30,7 +30,7 @@ class AccountContainer extends React.Component {
 
         this.state = {
             formAction: "forgotPassword",
-            email: "topher@bythecode.agency",
+            email: "",
             password: "",
             passwordLabel: "password",
             confirmPassword: "",
@@ -299,11 +299,9 @@ class AccountContainer extends React.Component {
                 this.state.password
             )
                 .then(data => {
-                    console.log(data);
-                    this.props.userHasAuthenticated(true);
+                    this.handleSignIn();
                 })
                 .catch(err => {
-                    console.log(err.message);
                     this.setState({
                         buttonContent: err.message,
                         isLoading: false
@@ -350,7 +348,6 @@ class AccountContainer extends React.Component {
 
     handleFormSubmit = async event => {
         event.preventDefault();
-        console.log(this.state.formAction);
         this.setState({ isLoading: true });
         switch (this.state.formAction) {
             case "signIn":
@@ -415,7 +412,6 @@ class AccountContainer extends React.Component {
         this.setState({
             isLoading: true
         });
-        console.log("resendsignup");
         try {
             await Auth.resendSignUp(this.state.email)
                 .then(event => {

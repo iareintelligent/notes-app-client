@@ -29,6 +29,7 @@ const styles = theme => ({
 class Footer extends React.PureComponent {
     render() {
         const { classes } = this.props;
+        const { version } = this.props;
         return (
             <div className={classes.Footer}>
                 <div className={classes.lander}>
@@ -47,7 +48,7 @@ class Footer extends React.PureComponent {
                         A simple note-taking app
                     </Typography>
                     <Typography variant="caption" component="p">
-                        ver 0.4
+                        v{version}
                     </Typography>
                 </div>
                 {this.props.isAuthenticated && (

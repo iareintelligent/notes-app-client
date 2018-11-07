@@ -18,6 +18,7 @@ const styles = theme => ({
         backgroundImage:
             "linear-gradient(to right, #93FDFE 1px, transparent 1px), linear-gradient(to bottom, #93FDFE 1px, transparent 1px)",
         height: "80vh",
+        position: "relative",
         padding: theme.spacing.unit
     }
 });

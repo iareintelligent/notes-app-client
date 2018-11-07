@@ -60,7 +60,7 @@ class App extends React.Component {
                     <CssBaseline>
                         <Navbar childProps={childProps} />
                         <AppRouter childProps={childProps} />
-                        <Footer {...childProps} />
+                        <Footer {...childProps} version="0.4.2" />
                     </CssBaseline>
                 </MuiThemeProvider>
             )
